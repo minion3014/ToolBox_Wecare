@@ -98,7 +98,7 @@
 
         <!-- Right panel -->
         <div id="right-panel">
-            <h2>Visualization</h2>
+            <h2 style="color: #484848;">Visualization</h2>
             <!-- Chart -->
             <div class="visualization-tools">
                 <button id="btn-add-grouped-bar-chart" title="Grouped Bar Chart"><i class="fas fa-columns"></i></button>
@@ -116,6 +116,13 @@
                 <button id="btn-add-pie-chart" title="Pie Chart"><i class="fas fa-chart-pie"></i></button>
                 <button id="btn-add-doughnut-chart" title="Doughnut Chart"><i class="fas fa-circle"></i></button>
                 <button id="btn-add-text" title="Text"><i class="fas fa-font"></i></button>
+            </div>
+            <!-- Thêm bảng hiển thị dữ liệu -->
+            <div style="padding-top: 15px;">
+                <h2 style="color: #484848;">Data</h2>
+                <div id="saved-data-container">
+                    <!-- Dữ liệu các bảng sẽ được thêm vào đây -->
+                </div>
             </div>
             <!-- Button -->
             <div style="display: flex; gap: 10px;">
@@ -266,7 +273,6 @@
             return deleteButton;
         }
 
-
         // Hàm xử lý kéo thả phần tử
         function makeDraggable(element) {
             let isDragging = false;
@@ -315,8 +321,14 @@
             });
 
             document.addEventListener('mouseup', function () {
-                isDragging = false;
-                element.style.cursor = 'grab';
+                if (isDragging) {
+                    isDragging = false;
+                    element.style.cursor = 'grab';
+
+                    // Lưu vị trí vào localStorage
+                    const uniqueId = element.getAttribute('data-chart-id');
+                    updateChartPositionInLocalStorage(uniqueId, element.style.left, element.style.top);
+                }
             });
         }
 
@@ -351,8 +363,40 @@
             }
 
             function stopResize() {
+                // Lưu kích thước vào localStorage
+                const uniqueId = element.getAttribute('data-chart-id');
+                updateChartSizeInLocalStorage(uniqueId, element.style.width, element.style.height);
+
                 window.removeEventListener('mousemove', resize);
                 window.removeEventListener('mouseup', stopResize);
+            }
+        }
+
+        // Hàm cập nhật vị trí biểu đồ trong localStorage
+        function updateChartPositionInLocalStorage(chartId, left, top) {
+            let savedCharts = localStorage.getItem('savedCharts');
+            if (savedCharts) {
+                let chartsData = JSON.parse(savedCharts);
+                const chart = chartsData.find(chartInfo => chartInfo.id === chartId);
+                if (chart) {
+                    chart.position.left = left;
+                    chart.position.top = top;
+                }
+                localStorage.setItem('savedCharts', JSON.stringify(chartsData));
+            }
+        }
+
+        // Hàm cập nhật kích thước biểu đồ trong localStorage
+        function updateChartSizeInLocalStorage(chartId, width, height) {
+            let savedCharts = localStorage.getItem('savedCharts');
+            if (savedCharts) {
+                let chartsData = JSON.parse(savedCharts);
+                const chart = chartsData.find(chartInfo => chartInfo.id === chartId);
+                if (chart) {
+                    chart.size.width = width;
+                    chart.size.height = height;
+                }
+                localStorage.setItem('savedCharts', JSON.stringify(chartsData));
             }
         }
 
