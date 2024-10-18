@@ -66,7 +66,7 @@ function handleFile(e) {
 
                 const toggleButton = document.createElement('button');
                 toggleButton.classList.add('toggle-button');
-                toggleButton.innerHTML = '<i class="fas fa-plus"></i>';
+                toggleButton.innerHTML = '<i class="fa-solid fa-arrow-down"></i>';
 
                 const sheetContent = document.createElement('div');
                 sheetContent.classList.add('sheet-content');
@@ -75,10 +75,10 @@ function handleFile(e) {
                 toggleButton.addEventListener('click', function () {
                     if (sheetContent.style.display === 'none') {
                         sheetContent.style.display = 'block';
-                        toggleButton.innerHTML = '<i class="fas fa-minus"></i>';
+                        toggleButton.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
                     } else {
                         sheetContent.style.display = 'none';
-                        toggleButton.innerHTML = '<i class="fas fa-plus"></i>';
+                        toggleButton.innerHTML = '<i class="fa-solid fa-arrow-down"></i>';
                     }
                 });
 
@@ -115,7 +115,7 @@ function handleFile(e) {
                     jsonData[0].forEach(function (cellData, index) {
                         const th = document.createElement('th');
                         th.textContent = cellData !== undefined ? cellData : '';
-                        th.style.width = '150px';  // Căn chỉnh cột theo chiều rộng hợgdúagud
+                        th.style.width = '150px';
                         headerRow.appendChild(th);
                     });
                     table.appendChild(headerRow);

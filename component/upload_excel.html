@@ -1,28 +1,79 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <title>Tool Excel - Toolbox</title>
     <link rel="stylesheet" href="../css/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
+<style>
+    /* Thay đổi màu sắc và kích thước của biểu tượng */
+    .toggle-button {
+        background: none;
+        border: none;
+        color: #ffffff;
+        font-size: 18px;
+        /* Điều chỉnh kích thước nếu cần */
+        cursor: pointer;
+    }
+
+    .toggle-button i {
+        font-size: 20px;
+        /* Điều chỉnh kích thước biểu tượng */
+        transition: color 0.3s ease;
+    }
+
+    .toggle-button:hover i {
+        color: #5c0eec;
+        /* Màu khi hover */
+    }
+
+    button {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        background-color: #5c0eec;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+</style>
+
 <body>
     <!-- Placeholder cho sidebar -->
     <div id="sidebar-placeholder"></div>
 
     <!-- Nội dung chính -->
     <div id="content">
-        <h1>Upload excel</h1>
+        <h1>Upload Excel_v1</h1>
         <p>Tải lên tệp Excel và hiển thị dữ liệu từ các sheet dưới dạng bảng.</p>
-        
+
         <!-- Form để upload file -->
-        <input type="file" id="input-excel" accept=".xlsx, .xls" class="form-control mb-3" />
+        <input type="file" id="input-excel" accept=".xlsx, .xls" multiple class="form-control mb-3" />
 
         <!-- Vùng hiển thị dữ liệu -->
-        <div id="excel-data" class="table-responsive"></div>
+        <div id="excel-data" class="table-responsive ">
+
+        </div>
+    </div>
+    <div id="overlay" style="display:none;"></div>
+
+    <div id="popup1" class="popup">
+        <div class="popup-content">
+            <h2>Thêm Dữ Liệu</h2>
+            <!-- Form phải nằm ở đây -->
+            <form id="data-form" class="data-form"></form>
+            <div class="popup-buttons">
+                <button id="save-data" class="save-data">Lưu Dữ Liệu</button>
+                <button id="close-popup" class="close-popup">Đóng</button>
+            </div>
+        </div>
     </div>
 
-    <!-- JavaScript chung -->
+
+    <!-- JavaScript -->
     <script src="../script/main.js"></script>
     <script>
         loadSidebar('upload-excel');
@@ -30,4 +81,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="../script/tool_excel.js"></script>
 </body>
+
 </html>
