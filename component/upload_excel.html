@@ -8,6 +8,38 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
+<style>
+    /* Thay đổi màu sắc và kích thước của biểu tượng */
+    .toggle-button {
+        background: none;
+        border: none;
+        color: #ffffff;
+        font-size: 18px;
+        /* Điều chỉnh kích thước nếu cần */
+        cursor: pointer;
+    }
+
+    .toggle-button i {
+        font-size: 20px;
+        /* Điều chỉnh kích thước biểu tượng */
+        transition: color 0.3s ease;
+    }
+
+    .toggle-button:hover i {
+        color: #5c0eec;
+        /* Màu khi hover */
+    }
+
+    button {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        background-color: #5c0eec;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+</style>
 
 <body>
     <!-- Placeholder cho sidebar -->
@@ -22,7 +54,9 @@
         <input type="file" id="input-excel" accept=".xlsx, .xls" multiple class="form-control mb-3" />
 
         <!-- Vùng hiển thị dữ liệu -->
-        <div id="excel-data" class="table-responsive"></div>
+        <div id="excel-data" class="table-responsive ">
+
+        </div>
     </div>
     <div id="overlay" style="display:none;"></div>
 
