@@ -1,5 +1,3 @@
-// main.js
-
 // Hàm để load sidebar
 function loadSidebar(activeLinkId) {
     fetch('../component/sidebar.html')
@@ -7,6 +5,9 @@ function loadSidebar(activeLinkId) {
         .then(data => {
             // Chèn sidebar vào placeholder
             document.getElementById('sidebar-placeholder').outerHTML = data;
+
+            // Lấy trạng thái từ localStorage và khôi phục lại
+            restoreSidebarState();
 
             // Thêm lớp 'active' cho link hiện tại
             if (activeLinkId) {
@@ -20,3 +21,5 @@ function loadSidebar(activeLinkId) {
             console.error('Error loading sidebar:', error);
         });
 }
+
+

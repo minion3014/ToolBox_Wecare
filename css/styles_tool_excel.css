@@ -1,0 +1,176 @@
+/* Popup overlay and styles */
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Dim background */
+    display: none;
+    z-index: 9998; /* Đảm bảo overlay luôn ở trên */
+}
+
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    display: none;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.popup-content {
+    padding: 10px;
+    text-align: center;
+}
+
+/* Các nút trong popup */
+.popup-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.save-data, .close-popup, .new-column {
+    background-color: #5c0eec;
+    border: none;
+    color: white;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.close-popup {
+    background-color: #f44336; /* Màu đỏ cho nút đóng */
+}
+
+.close-popup:hover {
+    background-color: #d32f2f;
+}
+
+.save-data:hover {
+    background-color: #834aec;
+}
+
+.new-column:hover {
+    background-color: #834aec;
+}
+
+.excel-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.excel-table th, .excel-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.excel-table th {
+    background-color: #f2f2f2;
+}
+
+/* Căn chỉnh popup với flexbox */
+#popup1 {
+    display: none;
+    width: 60%;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: fixed;  /* Đặt ở vị trí cố định trên màn hình */
+    top: 50%;  /* Đưa popup vào giữa theo chiều dọc */
+    left: 50%;  /* Đưa popup vào giữa theo chiều ngang */
+    transform: translate(-50%, -50%);  /* Căn giữa chính xác */
+    max-width: 800px;
+}
+
+#overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.input-group {
+    display: flex;
+    justify-content: space-between; /* Căn giữa các phần tử trái phải */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    flex: 1;
+    font-size: 18px; /* Kích thước chữ tên cột lớn hơn */
+    text-align: left;
+    margin-right: 10px; /* Khoảng cách giữa tên cột và input */
+}
+
+.input-group input {
+    flex: 2;
+    padding: 10px;
+    font-size: 18px; /* Kích thước chữ input lớn hơn */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+ /* Thay đổi màu sắc và kích thước của biểu tượng */
+ .toggle-button {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 18px;
+    /* Điều chỉnh kích thước nếu cần */
+    cursor: pointer;
+}
+
+.toggle-button i {
+    font-size: 20px;
+    /* Điều chỉnh kích thước biểu tượng */
+    transition: color 0.3s ease;
+}
+
+.toggle-button:hover i {
+    color: #5c0eec;
+    /* Màu khi hover */
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    background-color: #5c0eec;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Phần nội dung bên trong của popup */
+.popup-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Thiết lập thanh cuộn cho form */
+.data-form {
+    overflow-y: auto;
+    /* Chỉ cho phép cuộn theo chiều dọc */
+    max-height: 250px;
+    /* Giới hạn chiều cao của form */
+    margin-bottom: 10px;
+    /* Khoảng cách giữa form và các nút */
+}
+

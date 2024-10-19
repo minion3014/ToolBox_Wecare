@@ -1,10 +1,51 @@
-<div id="sidebar">
-    <h2 style="text-align: center;">Wecare's Toolbox</h2>
-    <ul class="menu">
-        <li><a href="index.html" id="link-home">Trang chủ</a></li>
-        <li><a href="generate_table.html" id="tool-generate-table">Generate table & data</a></li>
-        <li><a href="upload_excel.html" id="upload-excel">Upload excel</a></li>
-        <li><a href="tool_promotion_design.html" id="link-tool-promotion-design">Design report</a></li>
+<!DOCTYPE html>
+<html lang="en">
 
-    </ul>
-</div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar</title>
+    <link rel="stylesheet" href="../css/styles_sidebar.css">
+</head>
+
+<body>
+    <div id="sidebar">
+        <h2 style="text-align: center;">Wecare's Toolbox</h2>
+        <ul class="menu">
+            <li>
+                <input type="checkbox" id="toggle-user" class="toggle">
+                <label for="toggle-user" class="menu-item">
+                    User <span class="arrow">▼</span>
+                </label>
+                <ul class="submenu">
+                    <li><a href="../component/upload_excel.html" id="link-user-profile"
+                            data-href="user_profile.html">Profile</a>
+                    </li>
+                    <li><a href="user_settings.html" id="link-user-settings" data-href="user_settings.html">Settings</a>
+                    </li>
+                    <li><a href="user_activity.html" id="link-user-activity" data-href="user_activity.html">Activity</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <input type="checkbox" id="toggle-admin" class="toggle">
+                <label for="toggle-admin" class="menu-item">
+                    Admin <span class="arrow">▼</span>
+                </label>
+                <ul class="submenu">
+                    <li><a href="admin_dashboard.html" id="link-admin-dashboard"
+                            data-href="admin_dashboard.html">Dashboard</a></li>
+                    <li><a href="admin_settings.html" id="link-admin-settings"
+                            data-href="admin_settings.html">Settings</a></li>
+                    <li><a href="admin_reports.html" id="link-admin-reports" data-href="admin_reports.html">Reports</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="../script/sidebar.js"></script>
+</body>
+
+</html>

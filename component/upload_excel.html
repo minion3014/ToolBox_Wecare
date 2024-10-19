@@ -4,42 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Tool Excel - Toolbox</title>
+    <link rel="stylesheet" href="../css/styles_tool_excel.css">
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-<style>
-    /* Thay đổi màu sắc và kích thước của biểu tượng */
-    .toggle-button {
-        background: none;
-        border: none;
-        color: #ffffff;
-        font-size: 18px;
-        /* Điều chỉnh kích thước nếu cần */
-        cursor: pointer;
-    }
 
-    .toggle-button i {
-        font-size: 20px;
-        /* Điều chỉnh kích thước biểu tượng */
-        transition: color 0.3s ease;
-    }
-
-    .toggle-button:hover i {
-        color: #5c0eec;
-        /* Màu khi hover */
-    }
-
-    button {
-        padding: 10px 20px;
-        font-size: 16px;
-        border: none;
-        background-color: #5c0eec;
-        color: white;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-</style>
 
 <body>
     <!-- Placeholder cho sidebar -->
@@ -54,21 +24,38 @@
         <input type="file" id="input-excel" accept=".xlsx, .xls" multiple class="form-control mb-3" />
 
         <!-- Vùng hiển thị dữ liệu -->
-        <div id="excel-data" class="table-responsive ">
-
-        </div>
+        <div id="excel-data" class="table-responsive"></div>
     </div>
     <div id="overlay" style="display:none;"></div>
-
+    <!-- Popup thêm dữ liệu -->
     <div id="popup1" class="popup">
         <div class="popup-content">
             <h2>Thêm Dữ Liệu</h2>
             <!-- Form phải nằm ở đây -->
-            <form id="data-form" class="data-form"></form>
+            <form id="data-form" class="data-form">
+                <div class="form-scroll">
+                    <!-- Các ô nhập liệu sẽ được chèn vào đây bằng JavaScript -->
+                </div>
+            </form>
             <div class="popup-buttons">
+                <button id="new-column" class="new-column">Thêm cột</button>
                 <button id="save-data" class="save-data">Lưu Dữ Liệu</button>
                 <button id="close-popup" class="close-popup">Đóng</button>
             </div>
+        </div>
+    </div>
+    <!-- Popup Nhập Tên Cột Mới -->
+    <div id="add-column-popup" class="popup">
+        <div class="popup-content">
+            <h2>Thêm Tên Cột Mới</h2>
+            <form id="column-form">
+                <label for="new-column-name">Tên cột:</label>
+                <input type="text" id="new-column-name" required>
+                <div class="popup-buttons">
+                    <button type="submit" id="save-column" class="save-data">Lưu</button>
+                    <button type="button" id="close-column-popup" class="close-popup">Đóng</button>
+                </div>
+            </form>
         </div>
     </div>
 
