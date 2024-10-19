@@ -28,7 +28,7 @@
 
         .visualization-tools {
             padding-top: 20px;
-            border:1px solid #484848;
+
         }
 
         .visualization-tools button {
@@ -69,7 +69,7 @@
             border: none;
             border-radius: 5px;
             padding: 10px 15px;
-            font-size: 10px;
+            font-size: 16px;
             cursor: pointer;
             transition: background-color 0.3s;
             display: block;
@@ -87,10 +87,6 @@
     <div id="sidebar-placeholder"></div>
     <!-- Nội dung chính -->
     <div id="content">
-        <!-- <div>
-            <h1>Power BI mini</h1>
-            <p>Design báo cáo</p>
-        </div> -->
 
         <div id="visualization-display-area">
             <!-- Các chart sẽ được tạo và hiển thị ở đây -->
@@ -100,27 +96,21 @@
         <div id="right-panel">
             <h2 style="color: #484848;">Visualization</h2>
             <!-- Chart -->
-            <div class="visualization-tools" style="border: #484848;">
-                <button id="btn-add-grouped-bar-chart" title="Grouped Bar Chart"><i class="fas fa-columns"></i></button>
-                <button id="btn-add-stacked-bar-chart" title="Stacked Bar Chart"><i
-                        class="fas fa-layer-group"></i></button>
-                <button id="btn-add-horizontal-bar-chart" title="Horizontal Bar Chart"><i class="fas fa-chart-bar"
-                        style="transform: rotate(90deg);"></i></button>
-                <button id="btn-add-bar-chart" title="Bar Chart"><i class="fas fa-chart-bar"></i></button>
-                <button id="btn-add-line-chart" title="Line Chart"><i class="fas fa-chart-line"></i></button>
+            <div class="visualization-tools">
+                <button id="btn-add-grouped-bar-chart" title="Grouped Bar Chart"><i class="fas fa-chart-bar"
+                        style="transform: rotate(270deg);"></i></button>
+                <button id="btn-add-horizontal-bar-chart" title="Horizontal Bar Chart"><i
+                        class="fas fa-chart-bar"></i></button>
                 <button id="btn-add-area-chart" title="Area Chart"><i class="fas fa-chart-area"></i></button>
                 <button id="btn-add-stacked-line-chart" title="Stacked Line Chart"><i
-                        class="fas fa-layer-group"></i></button>
-                <button id="btn-add-multi-line-chart" title="Multi-Line Chart"><i
                         class="fas fa-chart-line"></i></button>
-                <button id="btn-add-pie-chart" title="Pie Chart"><i class="fas fa-chart-pie"></i></button>
-                <button id="btn-add-doughnut-chart" title="Doughnut Chart"><i class="fas fa-circle"></i></button>
+                <button id="btn-add-doughnut-chart" title="Doughnut Chart"><i class="fas fa-chart-pie"></i></button>
                 <button id="btn-add-text" title="Text"><i class="fas fa-font"></i></button>
             </div>
-            <!-- Data -->
+            <!-- Thêm bảng hiển thị dữ liệu -->
             <div style="padding-top: 15px;">
                 <h2 style="color: #484848;">Data</h2>
-                <div id="saved-data-container" style="border: #484848;">
+                <div id="saved-data-container">
                     <!-- Dữ liệu các bảng sẽ được thêm vào đây -->
                 </div>
             </div>
@@ -129,6 +119,7 @@
                 <button id="btn-save-custom-chart" class="custom-button">Save</button>
                 <button id="btn-import-custom-chart" class="custom-button">Import</button>
                 <input type="file" id="import-file" style="display:none" accept=".json">
+                <button id="btn-clear-custom-chart" class="custom-button">Clear</button>
             </div>
         </div>
     </div>
@@ -141,14 +132,25 @@
 
         // Tải lại các biểu đồ
         window.addEventListener('load', loadSavedCharts);
-
-        // Get data từ local khi tải lại trang
         window.addEventListener('load', loadSavedDataToContainer);
 
         // Event listeners cho việc vẽ các loại biểu đồ
         document.getElementById('btn-add-text').addEventListener('click', function () {
             createTextInputContainer();
         });
+
+        // Event listeners cho việc xóa 
+        document.getElementById('btn-clear-custom-chart').addEventListener('click', function () {
+            // Xóa tất cả các chart khỏi localStorage
+            localStorage.removeItem("savedCharts");
+
+            // Xóa tất cả các chart khỏi giao diện
+            const visualizationDisplayArea = document.getElementById('visualization-display-area');
+            while (visualizationDisplayArea.firstChild) {
+                visualizationDisplayArea.removeChild(visualizationDisplayArea.firstChild);
+            }
+        });
+
 
         // Gán sự kiện khi nút Import được nhấn
         document.getElementById('btn-import-custom-chart').addEventListener('click', function () {
@@ -198,8 +200,6 @@
                 reader.readAsText(file);
             }
         });
-
-        // Hàm để lấy dữ liệu từ localStorage và hiển thị theo dạng bảng -> cột
         function loadSavedDataToContainer() {
             const dataContainer = document.getElementById('saved-data-container');
 
@@ -588,77 +588,6 @@
         }
 
         // Gọi các biểu đồ khi click vào icon
-        document.getElementById('btn-add-bar-chart').addEventListener('click', function () {
-            const data = {
-                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-                datasets: [{
-                    label: '# of Votes',
-                    data: [12, 19, 3, 5, 2, 3],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            };
-            const options = {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            };
-            renderChart('bar', data, options);
-        });
-
-        document.getElementById('btn-add-line-chart').addEventListener('click', function () {
-            const data = {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-                datasets: [{
-                    label: 'Sales',
-                    data: [65, 59, 80, 81, 56, 55, 40],
-                    fill: false,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
-            };
-            renderChart('line', data);
-        });
-
-        document.getElementById('btn-add-pie-chart').addEventListener('click', function () {
-            const data = {
-                labels: ['Red', 'Blue', 'Yellow'],
-                datasets: [{
-                    label: 'Colors',
-                    data: [300, 50, 100],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            };
-            renderChart('pie', data);
-        });
-
         document.getElementById('btn-add-area-chart').addEventListener('click', function () {
             const data = {
                 labels: ['January', 'February', 'March', 'April', 'May', 'June'],
@@ -701,36 +630,6 @@
                 scales: {
                     y: {
                         beginAtZero: true
-                    }
-                }
-            };
-            renderChart('bar', data, options);
-        });
-
-        document.getElementById('btn-add-stacked-bar-chart').addEventListener('click', function () {
-            const data = {
-                labels: ['Red', 'Blue', 'Yellow', 'Green'],
-                datasets: [
-                    {
-                        label: 'Dataset 1',
-                        data: [12, 19, 3, 5],
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    },
-                    {
-                        label: 'Dataset 2',
-                        data: [8, 10, 5, 12],
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    },
-                ]
-            };
-            const options = {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        stacked: true
-                    },
-                    x: {
-                        stacked: true
                     }
                 }
             };
@@ -782,40 +681,6 @@
                     y: {
                         beginAtZero: true,
                         stacked: true
-                    }
-                }
-            };
-            renderChart('line', data, options);
-        });
-
-        document.getElementById('btn-add-multi-line-chart').addEventListener('click', function () {
-            const data = {
-                labels: ['January', 'February', 'March', 'April', 'May'],
-                datasets: [
-                    {
-                        label: 'Line 1',
-                        data: [10, 20, 30, 40, 50],
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        fill: false
-                    },
-                    {
-                        label: 'Line 2',
-                        data: [20, 10, 25, 35, 45],
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        fill: false
-                    },
-                    {
-                        label: 'Line 3',
-                        data: [30, 40, 15, 25, 35],
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        fill: false
-                    },
-                ]
-            };
-            const options = {
-                scales: {
-                    y: {
-                        beginAtZero: true
                     }
                 }
             };
