@@ -22,8 +22,8 @@ document.getElementById('btn-add-stacked-line-chart').addEventListener('click', 
 
     const selectColumnYLabel = document.createElement('label');
     selectColumnYLabel.textContent = 'Chọn giá trị:';
-    const selectColumnY = document.createElement('select');
-    selectColumnY.classList.add('custom-select');
+    const checkBoxContainer = document.createElement('div');
+    checkBoxContainer.classList.add('checkbox-container');
 
     // Thêm phần chọn hàm tính toán
     const selectFunctionLabel = document.createElement('label');
@@ -55,7 +55,6 @@ document.getElementById('btn-add-stacked-line-chart').addEventListener('click', 
     }
 
     // Khi chọn file, hiển thị các bảng
-
     const selectedFileKey = selectFile.value;
     const selectedFileData = localStorage.getItem(selectedFileKey);
 
@@ -76,8 +75,7 @@ document.getElementById('btn-add-stacked-line-chart').addEventListener('click', 
         }
     }
 
-
-    // Khi chọn bảng, hiển thị các cột
+    // Khi chọn bảng, hiển thị các cột dưới dạng checkbox
     selectTable.addEventListener('change', function () {
         const selectedFileKey = selectFile.value;
         const selectedFileData = localStorage.getItem(selectedFileKey);
@@ -91,22 +89,37 @@ document.getElementById('btn-add-stacked-line-chart').addEventListener('click', 
         const selectedTable = selectedFile[selectTable.value];
 
         selectColumnX.innerHTML = '';
-        selectColumnY.innerHTML = '';
+        checkBoxContainer.innerHTML = '';  // Xóa các checkbox cũ
 
         if (selectedTable.length > 0) {
             const columns = Object.keys(selectedTable[0]);
+
+            // Thêm các tùy chọn cho cột X
             columns.forEach(column => {
                 const optionX = document.createElement('option');
                 optionX.value = column;
                 optionX.text = column;
                 selectColumnX.appendChild(optionX);
+            });
 
-                const optionY = document.createElement('option');
-                optionY.value = column;
-                optionY.text = column;
-                selectColumnY.appendChild(optionY);
+            // Tạo checkbox cho từng cột Y và thêm vào container
+            columns.forEach(column => {
+                const checkboxLabel = document.createElement('label');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = column;
+                checkbox.classList.add('checkbox-input');
+
+                checkboxLabel.textContent = column;
+                checkboxLabel.style.fontSize = '12px';
+                checkboxLabel.style.fontWeight = 'normal';
+                checkboxLabel.style.paddingLeft = '0px';
+                checkboxLabel.style.display = 'block'; // Đảm bảo mỗi checkbox được xếp dọc
+                checkboxLabel.prepend(checkbox);
+                checkBoxContainer.appendChild(checkboxLabel);
             });
         }
+        
     });
 
     // Khi nhấn "Tạo Biểu Đồ"
@@ -122,58 +135,66 @@ document.getElementById('btn-add-stacked-line-chart').addEventListener('click', 
         const selectedFile = JSON.parse(selectedFileData);
         const selectedTable = selectedFile[selectTable.value];
         const columnX = selectColumnX.value;
-        const columnY = selectColumnY.value;
+        const selectedColumnsY = Array.from(checkBoxContainer.querySelectorAll('input:checked')).map(checkbox => checkbox.value);  // Lấy danh sách các cột Y đã chọn
         const selectedFunction = selectFunction.value;
 
-        // Lấy danh sách các giá trị X và Y từ bảng đã chọn
+        // Lấy danh sách các giá trị X
         const labels = [...new Set(selectedTable.map(row => row[columnX]))]; // Loại bỏ các giá trị trùng lặp
 
-        let dataPoints = [];
+        let datasets = [];
 
-        // Tính toán giá trị Y theo hàm đã chọn
-        if (selectedFunction === 'count') {
-            dataPoints = labels.map(label => selectedTable.filter(row => row[columnX] === label).length);
-        } else if (selectedFunction === 'sum') {
-            dataPoints = labels.map(label => {
-                return selectedTable
-                    .filter(row => row[columnX] === label)
-                    .reduce((sum, row) => sum + parseFloat(row[columnY]), 0);
-            });
-        } else if (selectedFunction === 'average') {
-            dataPoints = labels.map(label => {
-                const filteredRows = selectedTable.filter(row => row[columnX] === label);
-                const sum = filteredRows.reduce((sum, row) => sum + parseFloat(row[columnY]), 0);
-                return sum / filteredRows.length;
-            });
-        } else if (selectedFunction === 'min') {
-            dataPoints = labels.map(label => {
-                const filteredRows = selectedTable.filter(row => row[columnX] === label);
-                return Math.min(...filteredRows.map(row => parseFloat(row[columnY])));
-            });
-        } else if (selectedFunction === 'max') {
-            dataPoints = labels.map(label => {
-                const filteredRows = selectedTable.filter(row => row[columnX] === label);
-                return Math.max(...filteredRows.map(row => parseFloat(row[columnY])));
-            });
-        } else if (selectedFunction === 'count distinct') {
-            dataPoints = labels.map(label => {
-                const distinctValues = [...new Set(selectedTable
-                    .filter(row => row[columnX] === label)
-                    .map(row => row[columnY]))];
-                return distinctValues.length;
-            });
-        }
+        // Tạo dataset cho mỗi cột Y đã chọn
+        selectedColumnsY.forEach(columnY => {
+            let dataPoints = [];
 
-        const data = {
-            labels: labels,
-            datasets: [{
+            // Tính toán giá trị Y theo hàm đã chọn
+            if (selectedFunction === 'count') {
+                dataPoints = labels.map(label => selectedTable.filter(row => row[columnX] === label).length);
+            } else if (selectedFunction === 'sum') {
+                dataPoints = labels.map(label => {
+                    return selectedTable
+                        .filter(row => row[columnX] === label)
+                        .reduce((sum, row) => sum + parseFloat(row[columnY]), 0);
+                });
+            } else if (selectedFunction === 'average') {
+                dataPoints = labels.map(label => {
+                    const filteredRows = selectedTable.filter(row => row[columnX] === label);
+                    const sum = filteredRows.reduce((sum, row) => sum + parseFloat(row[columnY]), 0);
+                    return sum / filteredRows.length;
+                });
+            } else if (selectedFunction === 'min') {
+                dataPoints = labels.map(label => {
+                    const filteredRows = selectedTable.filter(row => row[columnX] === label);
+                    return Math.min(...filteredRows.map(row => parseFloat(row[columnY])));
+                });
+            } else if (selectedFunction === 'max') {
+                dataPoints = labels.map(label => {
+                    const filteredRows = selectedTable.filter(row => row[columnX] === label);
+                    return Math.max(...filteredRows.map(row => parseFloat(row[columnY])));
+                });
+            } else if (selectedFunction === 'count distinct') {
+                dataPoints = labels.map(label => {
+                    const distinctValues = [...new Set(selectedTable
+                        .filter(row => row[columnX] === label)
+                        .map(row => row[columnY]))];
+                    return distinctValues.length;
+                });
+            }
+
+            // Thêm dataset cho cột Y
+            datasets.push({
                 label: `${selectedFunction.toUpperCase()} của ${columnY}`,
                 data: dataPoints,
                 fill: true,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.2)`,
+                borderColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`,
                 borderWidth: 1
-            }]
+            });
+        });
+
+        const data = {
+            labels: labels,
+            datasets: datasets
         };
 
         const options = {
@@ -190,7 +211,13 @@ document.getElementById('btn-add-stacked-line-chart').addEventListener('click', 
 
         renderChart('line', data, options);
     });
-
+    dataContainer.style.scrollbarWidth = 'none';  // Ẩn thanh cuộn trên Firefox
+    dataContainer.style.msOverflowStyle = 'none'; // Ẩn thanh cuộn trên IE và Edge
+    
+    // Ẩn thanh cuộn trên Webkit browsers (Chrome, Safari)
+    dataContainer.style.overflow = 'hidden';
+    dataContainer.style.overflowY = 'scroll';
+    dataContainer.style['::-webkit-scrollbar'] = 'none';
     // Thêm các phần tử vào giao diện
     formContainer.appendChild(selectFileLabel);
     formContainer.appendChild(selectFile);
@@ -199,7 +226,7 @@ document.getElementById('btn-add-stacked-line-chart').addEventListener('click', 
     formContainer.appendChild(selectColumnXLabel);
     formContainer.appendChild(selectColumnX);
     formContainer.appendChild(selectColumnYLabel);
-    formContainer.appendChild(selectColumnY);
+    formContainer.appendChild(checkBoxContainer);  // Thay thế selectColumnY bằng checkBoxContainer
     formContainer.appendChild(selectFunctionLabel);
     formContainer.appendChild(selectFunction);
     formContainer.appendChild(chartButton);
