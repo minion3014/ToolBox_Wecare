@@ -64,7 +64,9 @@ document.getElementById('btn-add-slicer').addEventListener('click', function () 
         }
 
         const selectedFile = JSON.parse(selectedFileData);
-        const selectedTable = selectedFile[selectTable.value];
+        // Kiểm tra nếu chỉ có một sheet hoặc không có sự thay đổi trong selectTable
+        const sheetKey = selectTable.value || selectTable.options[0].value;
+        const selectedTable = selectedFile[sheetKey];
 
         selectColumnX.innerHTML = '';
 
@@ -78,6 +80,10 @@ document.getElementById('btn-add-slicer').addEventListener('click', function () 
             });
         }
     });
+    // Tự động chọn sheet đầu tiên nếu chỉ có một sheet
+    if (selectTable.options.length > 0) {
+        selectTable.dispatchEvent(new Event('change'));
+    }
 
     chartButton.addEventListener('click', function () {
         const slicerContainer = createSlicerContainer(); // Tạo slicer container như chart container
