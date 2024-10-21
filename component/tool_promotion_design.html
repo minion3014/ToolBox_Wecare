@@ -137,6 +137,15 @@
         .custom-button:hover {
             background-color: #146b90;
         }
+        .dropdown-content {
+    position: relative;
+    display: block;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 4px;
+}
+
     </style>
 </head>
 
@@ -163,6 +172,8 @@
                 <button id="btn-add-stacked-line-chart" title="Stacked Line Chart"><i
                         class="fas fa-chart-line"></i></button>
                 <button id="btn-add-doughnut-chart" title="Doughnut Chart"><i class="fas fa-chart-pie"></i></button>
+                <button id="btn-add-slicer" title="Slicer"><i class="fas fa-sliders-h"></i></button>
+
                 <!-- <button id="btn-add-table-chart" title="Table Chart">
                     <i class="fas fa-table"></i>
                 </button>
@@ -196,6 +207,7 @@
     <script src="../script/chart_area.js"></script>
     <script src="../script/chart_Stacked_line.js"></script>
     <script src="../script/chart_doughnut.js"></script>
+    <script src="../script/chart_slicer.js"></script>
     <script src="../script/tool_promotion_design.js"></script>
     <script>
         // Load sidebar

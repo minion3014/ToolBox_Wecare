@@ -35,21 +35,44 @@ document.getElementById('import-file').addEventListener('change', function (even
 
                     // Tạo lại biểu đồ từ dữ liệu đã import
                     chartsData.forEach(chartInfo => {
-                        const canvas = createChartContainer(chartInfo.id); // Truyền ID từ dữ liệu import
-                        const ctx = canvas.getContext('2d');
+                        if (chartInfo.type === 'slicer') {
+                            const slicerContainer = createSlicerContainer(chartInfo.id);
+                            const dataContainer = slicerContainer.querySelector('.slicer-content');
 
-                        // Đặt vị trí và kích thước
-                        const chartContainer = canvas.parentElement;
-                        chartContainer.style.left = chartInfo.position.left;
-                        chartContainer.style.top = chartInfo.position.top;
-                        chartContainer.style.width = chartInfo.size.width;
-                        chartContainer.style.height = chartInfo.size.height;
+                            const dataDropdown = document.createElement('select');
+                            dataDropdown.classList.add('custom-select');
+                            chartInfo.labels.forEach((label) => {
+                                const option = document.createElement('option');
+                                option.value = label;
+                                option.text = label;
+                                dataDropdown.appendChild(option);
+                            });
 
-                        new Chart(ctx, {
-                            type: chartInfo.type,
-                            data: chartInfo.data,
-                            options: chartInfo.options
-                        });
+                            dataContainer.appendChild(dataDropdown);
+
+                            // Đặt vị trí và kích thước slicer
+                            slicerContainer.style.left = chartInfo.position.left;
+                            slicerContainer.style.top = chartInfo.position.top;
+                            slicerContainer.style.width = chartInfo.size.width;
+                            slicerContainer.style.height = chartInfo.size.height;
+                        } else {
+                            const canvas = createChartContainer(chartInfo.id); // Truyền ID từ dữ liệu import
+                            const ctx = canvas.getContext('2d');
+
+                            // Đặt vị trí và kích thước
+                            const chartContainer = canvas.parentElement;
+                            chartContainer.style.left = chartInfo.position.left;
+                            chartContainer.style.top = chartInfo.position.top;
+                            chartContainer.style.width = chartInfo.size.width;
+                            chartContainer.style.height = chartInfo.size.height;
+
+                            new Chart(ctx, {
+                                type: chartInfo.type,
+                                data: chartInfo.data,
+                                options: chartInfo.options
+                            });
+                        }
+
                     });
                 } else {
                     alert('Dữ liệu không hợp lệ. Vui lòng chọn file JSON chứa các thông tin biểu đồ hợp lệ.');
@@ -102,9 +125,8 @@ function deleteChartContainer(chartContainer) {
 
     // Gọi hàm xóa biểu đồ khi nút xóa được nhấn
     deleteButton.addEventListener('click', function () {
-        const uniqueId = chartContainer.getAttribute('data-chart-id');
+        const uniqueId = chartContainer.getAttribute('data-chart-id') || chartContainer.getAttribute('data-slicer-id');
         chartContainer.remove();
-        console.log(uniqueId);
         deleteChartFromLocalStorage(uniqueId); // Xóa biểu đồ khỏi localStorage
     });
 
@@ -295,6 +317,26 @@ document.getElementById('btn-save-custom-chart').addEventListener('click', funct
             };
 
             chartsData.push(chartInfo);
+        } else {
+            // Xử lý lưu slicer nếu không phải là chart
+            const slicerId = chartContainer.getAttribute('data-slicer-id');
+            if (slicerId) {
+                const labels = Array.from(chartContainer.querySelector('select').options).map(option => option.text);
+                const slicerInfo = {
+                    id: slicerId,
+                    type: 'slicer',
+                    labels: labels,
+                    position: {
+                        left: chartContainer.style.left,
+                        top: chartContainer.style.top,
+                    },
+                    size: {
+                        width: chartContainer.style.width,
+                        height: chartContainer.style.height
+                    }
+                };
+                chartsData.push(slicerInfo);
+            }
         }
     });
 
@@ -311,21 +353,40 @@ document.getElementById('btn-save-custom-chart').addEventListener('click', funct
 
 // Hàm thêm chart vào localStorage
 function saveChartToLocalStorage(chartContainer, type, data, options) {
-    const uniqueId = chartContainer.getAttribute('data-chart-id');
-    const chartInfo = {
-        id: uniqueId,
-        type: type,
-        data: data,
-        options: options,
-        position: {
-            left: chartContainer.style.left,
-            top: chartContainer.style.top,
-        },
-        size: {
-            width: chartContainer.style.width,
-            height: chartContainer.style.height
-        }
-    };
+    const uniqueId = chartContainer.getAttribute('data-chart-id') || chartContainer.getAttribute('data-slicer-id');
+    let chartInfo;
+    // Kiểm tra nếu là slicer
+    if (type === 'slicer') {
+        const labels = Array.from(chartContainer.querySelector('select').options).map(option => option.text);
+        chartInfo = {
+            id: uniqueId,
+            type: 'slicer',
+            labels: labels,
+            position: {
+                left: chartContainer.style.left,
+                top: chartContainer.style.top,
+            },
+            size: {
+                width: chartContainer.style.width,
+                height: chartContainer.style.height
+            }
+        };
+    } else {
+        chartInfo = {
+            id: uniqueId,
+            type: type,
+            data: data,
+            options: options,
+            position: {
+                left: chartContainer.style.left,
+                top: chartContainer.style.top,
+            },
+            size: {
+                width: chartContainer.style.width,
+                height: chartContainer.style.height
+            }
+        };
+    }
 
     let savedCharts = localStorage.getItem('savedCharts');
     savedCharts = savedCharts ? JSON.parse(savedCharts) : [];
@@ -342,6 +403,55 @@ function deleteChartFromLocalStorage(chartId) {
         localStorage.setItem('savedCharts', JSON.stringify(chartsData));
     }
 }
+// Hàm lưu slicer vào localStorage
+function saveSlicerToLocalStorage(slicerContainer, labels) {
+    const uniqueId = slicerContainer.getAttribute('data-slicer-id');
+    const slicerInfo = {
+        id: uniqueId,
+        type: 'slicer',
+        labels: labels,
+        position: {
+            left: slicerContainer.style.left,
+            top: slicerContainer.style.top,
+        },
+        size: {
+            width: slicerContainer.style.width,
+            height: slicerContainer.style.height
+        }
+    };
+
+    let savedCharts = localStorage.getItem('savedCharts');
+    savedCharts = savedCharts ? JSON.parse(savedCharts) : [];
+    savedCharts.push(slicerInfo);
+    localStorage.setItem('savedCharts', JSON.stringify(savedCharts));
+}
+
+function createSlicerContainer(existingId = null) {
+    const slicerContainer = document.createElement('div');
+    slicerContainer.classList.add('chart-container');
+    slicerContainer.style.position = 'absolute'; // Cho phép di chuyển tự do
+
+    // Sử dụng ID truyền vào nếu có, nếu không thì tạo ID mới
+    const uniqueId = existingId || `slicer-${Date.now()}`;
+    slicerContainer.setAttribute('data-slicer-id', uniqueId);
+
+    const contentDiv = document.createElement('div');
+    contentDiv.classList.add('slicer-content');
+    slicerContainer.appendChild(contentDiv);
+
+    // Tạo và thêm nút xóa vào slicer container
+    const deleteButton = deleteChartContainer(slicerContainer); // Sử dụng lại hàm từ chart
+    slicerContainer.appendChild(deleteButton);
+
+    document.getElementById('visualization-display-area').appendChild(slicerContainer);
+
+    // Kéo thả và thay đổi kích thước
+    makeDraggable(slicerContainer);
+    makeResizable(slicerContainer);
+
+    return slicerContainer;
+}
+
 
 // Hàm import các biểu đồ từ localStorage hoặc file JSON
 function loadSavedCharts() {
@@ -350,21 +460,44 @@ function loadSavedCharts() {
         const chartsData = JSON.parse(savedCharts);
 
         chartsData.forEach(chartInfo => {
-            const canvas = createChartContainer(chartInfo.id); // Truyền ID đã lưu khi tạo
-            const ctx = canvas.getContext('2d');
+            if (chartInfo.type === 'slicer') {
+                const slicerContainer = createSlicerContainer(chartInfo.id);
+                const dataContainer = slicerContainer.querySelector('.slicer-content');
 
-            // Đặt vị trí và kích thước
-            const chartContainer = canvas.parentElement;
-            chartContainer.style.left = chartInfo.position.left;
-            chartContainer.style.top = chartInfo.position.top;
-            chartContainer.style.width = chartInfo.size.width;
-            chartContainer.style.height = chartInfo.size.height;
+                const dataDropdown = document.createElement('select');
+                dataDropdown.classList.add('custom-select');
+                chartInfo.labels.forEach((label) => {
+                    const option = document.createElement('option');
+                    option.value = label;
+                    option.text = label;
+                    dataDropdown.appendChild(option);
+                });
 
-            new Chart(ctx, {
-                type: chartInfo.type,
-                data: chartInfo.data,
-                options: chartInfo.options
-            });
+                dataContainer.appendChild(dataDropdown);
+
+                // Đặt vị trí và kích thước
+                slicerContainer.style.left = chartInfo.position.left;
+                slicerContainer.style.top = chartInfo.position.top;
+                slicerContainer.style.width = chartInfo.size.width;
+                slicerContainer.style.height = chartInfo.size.height;
+            } else {
+                const canvas = createChartContainer(chartInfo.id); // Truyền ID đã lưu khi tạo
+                const ctx = canvas.getContext('2d');
+
+                // Đặt vị trí và kích thước
+                const chartContainer = canvas.parentElement;
+                chartContainer.style.left = chartInfo.position.left;
+                chartContainer.style.top = chartInfo.position.top;
+                chartContainer.style.width = chartInfo.size.width;
+                chartContainer.style.height = chartInfo.size.height;
+
+                new Chart(ctx, {
+                    type: chartInfo.type,
+                    data: chartInfo.data,
+                    options: chartInfo.options
+                });
+            }
+
         });
     }
 }
