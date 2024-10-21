@@ -12,7 +12,7 @@ function loadSavedDataToContainer() {
         const key = localStorage.key(i);
 
         // Kiểm tra nếu key bắt đầu bằng "file_"
-        if (key !== "savedCharts") {
+        if (key !== "savedCharts" || key !== "submenuStates") {
             try {
                 const savedData = JSON.parse(localStorage.getItem(key));
 

@@ -26,7 +26,7 @@ document.getElementById('btn-add-slicer').addEventListener('click', function () 
 
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key !== "savedCharts") {
+        if (key !== "savedCharts" && key !== "submenuStates") {
             const option = document.createElement('option');
             option.value = key;
             option.text = key;

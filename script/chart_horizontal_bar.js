@@ -46,7 +46,7 @@ document.getElementById('btn-add-horizontal-bar-chart').addEventListener('click'
     // Thêm các file bắt đầu bằng 'file_'
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key !== "savedCharts") {
+        if (key !== "savedCharts" && key !== "submenuStates") {
             const option = document.createElement('option');
             option.value = key;
             option.text = key;
@@ -81,26 +81,29 @@ document.getElementById('btn-add-horizontal-bar-chart').addEventListener('click'
     selectTable.addEventListener('change', function () {
         const selectedFileKey = selectFile.value;
         const selectedFileData = localStorage.getItem(selectedFileKey);
-
+    
         if (!selectedFileData) {
             console.error('Không tìm thấy dữ liệu cho file: ', selectedFileKey);
             return;
         }
-
+    
         const selectedFile = JSON.parse(selectedFileData);
-        const selectedTable = selectedFile[selectTable.value];
-
+    
+        // Kiểm tra nếu chỉ có một sheet hoặc không có sự thay đổi trong selectTable
+        const sheetKey = selectTable.value || selectTable.options[0].value;
+        const selectedTable = selectedFile[sheetKey];
+    
         selectColumnX.innerHTML = '';
         selectColumnY.innerHTML = '';
-
-        if (selectedTable.length > 0) {
+    
+        if (selectedTable && selectedTable.length > 0) {
             const columns = Object.keys(selectedTable[0]);
             columns.forEach(column => {
                 const optionX = document.createElement('option');
                 optionX.value = column;
                 optionX.text = column;
                 selectColumnX.appendChild(optionX);
-
+    
                 const optionY = document.createElement('option');
                 optionY.value = column;
                 optionY.text = column;
@@ -108,6 +111,11 @@ document.getElementById('btn-add-horizontal-bar-chart').addEventListener('click'
             });
         }
     });
+    
+    // Tự động chọn sheet đầu tiên nếu chỉ có một sheet
+    if (selectTable.options.length > 0) {
+        selectTable.dispatchEvent(new Event('change'));
+    }
 
     // Khi nhấn "Tạo Biểu Đồ"
     chartButton.addEventListener('click', function () {

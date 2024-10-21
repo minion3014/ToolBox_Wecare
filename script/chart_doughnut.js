@@ -46,7 +46,7 @@ document.getElementById('btn-add-doughnut-chart').addEventListener('click', func
     // Thêm các file bắt đầu bằng 'file_'
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key !== "savedCharts") {
+        if (key !== "savedCharts" && key !== "submenuStates") {
             const option = document.createElement('option');
             option.value = key;
             option.text = key;
@@ -88,12 +88,15 @@ document.getElementById('btn-add-doughnut-chart').addEventListener('click', func
         }
 
         const selectedFile = JSON.parse(selectedFileData);
-        const selectedTable = selectedFile[selectTable.value];
+
+        // Kiểm tra nếu chỉ có một sheet hoặc không có sự thay đổi trong selectTable
+        const sheetKey = selectTable.value || selectTable.options[0].value;
+        const selectedTable = selectedFile[sheetKey];
 
         selectColumnX.innerHTML = '';
         selectColumnY.innerHTML = '';
 
-        if (selectedTable.length > 0) {
+        if (selectedTable && selectedTable.length > 0) {
             const columns = Object.keys(selectedTable[0]);
             columns.forEach(column => {
                 const optionX = document.createElement('option');
@@ -108,6 +111,12 @@ document.getElementById('btn-add-doughnut-chart').addEventListener('click', func
             });
         }
     });
+
+    // Tự động chọn sheet đầu tiên nếu chỉ có một sheet
+    if (selectTable.options.length > 0) {
+        selectTable.dispatchEvent(new Event('change'));
+    }
+
 
     // Khi nhấn "Tạo Biểu Đồ"
     chartButton.addEventListener('click', function () {
