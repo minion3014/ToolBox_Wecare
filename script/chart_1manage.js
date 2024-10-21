@@ -1,3 +1,67 @@
+// khi thay đổi giá trị slicer
+document.getElementById('visualization-display-area').addEventListener('change', function (event) {
+    // Kiểm tra nếu event xảy ra từ slicer (dropdown)
+    if (event.target.tagName === 'SELECT' && event.target.closest('.chart-container').getAttribute('data-slicer-id')) {
+        const selectedValue = event.target.value;
+
+        // Gọi hàm để cập nhật các biểu đồ dựa trên giá trị đã chọn từ slicer
+        updateChartsBasedOnSlicer(selectedValue);
+    }
+});
+
+//hàm lọc giá trị biểu đồ dựa trên slicer
+function updateChartsBasedOnSlicer(selectedValue) {
+    const charts = document.querySelectorAll('.chart-container');
+
+    charts.forEach(chartContainer => {
+        const canvas = chartContainer.querySelector('canvas');
+        const chartInstance = Chart.getChart(canvas); // Lấy instance của Chart.js từ canvas
+
+        if (chartInstance) {
+            
+            const originalData = JSON.parse(JSON.stringify(chartInstance.config.data.originalData));
+            let filteredData;
+
+            if (selectedValue === 'all') {
+                filteredData = originalData;
+            } else { 
+                filteredData = filterDataBySlicer(originalData, selectedValue);
+            } 
+
+            // Cập nhật dữ liệu cho biểu đồ
+            chartInstance.config.data.labels = filteredData.labels;
+            chartInstance.config.data.datasets.forEach((dataset, index) => {
+                dataset.data = filteredData.datasets[index].data;
+            });
+
+            chartInstance.update(); // Cập nhật lại biểu đồ
+        }
+    });
+}
+
+// Hàm lọc dữ liệu dựa trên slicer
+function filterDataBySlicer(data, selectedValue) {
+    const filteredLabels = [];
+    const filteredDatasets = data.datasets.map(dataset => {
+        return { data: [] };
+    });
+
+    // Giả sử dữ liệu là dạng {labels: [...], datasets: [{data: [...]}]}
+    data.labels.forEach((label, index) => {
+        if (label === selectedValue) {
+            filteredLabels.push(label);
+            data.datasets.forEach((dataset, i) => {
+                filteredDatasets[i].data.push(dataset.data[index]);
+            });
+        }
+    });
+
+    return {
+        labels: filteredLabels,
+        datasets: filteredDatasets
+    };
+}
+
 
 // Tải lại các biểu đồ
 window.addEventListener('load', loadSavedCharts);
@@ -283,13 +347,16 @@ function renderChart(type, data, options) {
 
     const chart = new Chart(ctx, {
         type: type,
-        data: data,
+        data: {
+            ...data,
+            originalData: JSON.parse(JSON.stringify(data)) // Lưu lại dữ liệu gốc
+        },
         options: options
     });
 
-    // Gọi hàm lưu biểu đồ vào localStorage
     saveChartToLocalStorage(canvas.parentElement, type, data, options);
 }
+
 
 // Hàm export biểu đồ ra file html
 document.getElementById('btn-export').addEventListener('click', function () {

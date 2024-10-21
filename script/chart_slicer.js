@@ -44,9 +44,9 @@ document.getElementById('btn-add-slicer').addEventListener('click', function () 
 
     const selectedFile = JSON.parse(selectedFileData);
 
-    selectTable.innerHTML = '';  
+    selectTable.innerHTML = '';
     for (const table in selectedFile) {
-        if (selectedFile.hasOwnProperty(table)) {  
+        if (selectedFile.hasOwnProperty(table)) {
             const option = document.createElement('option');
             option.value = table;
             option.text = table;
@@ -82,30 +82,35 @@ document.getElementById('btn-add-slicer').addEventListener('click', function () 
     chartButton.addEventListener('click', function () {
         const slicerContainer = createSlicerContainer(); // Tạo slicer container như chart container
         const dataContainer = slicerContainer.querySelector('.slicer-content');
-        
+
         const selectedFileKey = selectFile.value;
         const selectedFileData = localStorage.getItem(selectedFileKey);
-    
+
         if (!selectedFileData) {
             console.error('Không tìm thấy dữ liệu cho file: ', selectedFileKey);
             return;
         }
-    
+
         const selectedFile = JSON.parse(selectedFileData);
         const selectedTable = selectedFile[selectTable.value];
         const columnX = selectColumnX.value;
-    
+
         const labels = [...new Set(selectedTable.map(row => row[columnX]))]; // Lấy giá trị không trùng lặp
-    
+
         const dataDropdown = document.createElement('select');
         dataDropdown.classList.add('custom-select');
+        // Thêm lựa chọn "All"
+        const optionAll = document.createElement('option');
+        optionAll.value = 'all';
+        optionAll.text = 'All';
+        dataDropdown.appendChild(optionAll);
         labels.forEach((label) => {
             const option = document.createElement('option');
             option.value = label;
             option.text = label;
             dataDropdown.appendChild(option);
         });
-    
+
         dataContainer.appendChild(dataDropdown);
         saveSlicerToLocalStorage(slicerContainer, labels); // Lưu slicer vào localStorage
     });
