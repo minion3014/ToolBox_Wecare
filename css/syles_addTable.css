@@ -37,7 +37,7 @@
     padding: 10px 20px; /* Add padding for buttons */
     border: none; /* Remove default border */
     border-radius: 5px; /* Rounded corners */
-    background-color: #007bff; /* Bootstrap primary color */
+    background-color: #0056b3; /* Bootstrap primary color */
     color: white; /* White text color */
     cursor: pointer; /* Pointer cursor on hover */
     transition: background-color 0.3s; /* Smooth transition for hover */
@@ -77,6 +77,9 @@ thead th {
 }
 
 button {
+    height: 35px;
+    width: 160px;
     padding: 5px 10px;
     margin: 5px;
+    background-color: #0056b3;
 }

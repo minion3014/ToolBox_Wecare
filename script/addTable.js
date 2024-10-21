@@ -113,12 +113,6 @@ document.getElementById('close-table-modal').addEventListener('click', function 
     document.getElementById('add-table-modal').style.display = 'none';
 });
 
-// Đóng modal thêm dữ liệu khi nhấn nút "Đóng"
-// document.getElementById('close-data-modal').addEventListener('click', function () {
-//     document.getElementById('add-data-modal').style.display = 'none';
-// });
-
-// Hàm lưu cột mới vào localStorage
 // Hàm lưu cột mới vào localStorage
 function saveColumnToLocalStorage(tableName, columnName, randomData) {
     // Lấy dữ liệu hiện có từ localStorage
@@ -149,45 +143,5 @@ function saveColumnToLocalStorage(tableName, columnName, randomData) {
     localStorage.setItem(tableName, JSON.stringify(localData));
     console.log(`Đã lưu cột ${columnName} vào sheet ${tableName} trong localStorage.`);
 }
-
-// Chức năng thêm cột mới với dữ liệu random
-addColumnButton.addEventListener('click', function () {
-    const newColumnName = prompt('Nhập tên cột mới:');
-    if (!newColumnName) return;
-
-    // Tạo tiêu đề cột mới
-    const newHeader = document.createElement('th');
-    newHeader.textContent = newColumnName;
-    headerRow.appendChild(newHeader);
-
-    // Thêm dữ liệu random vào các hàng đã có
-    const rows = tableBody.querySelectorAll('tr');
-    const randomData = [];
-
-    // Thêm dữ liệu random cho hàng đã có
-    rows.forEach(row => {
-        const randomNumber = Math.floor(Math.random() * 50) + 1; // Random số từ 1 đến 50
-        const newCell = document.createElement('td');
-        newCell.textContent = `${newColumnName} - ${randomNumber}`;
-        row.appendChild(newCell);
-        randomData.push(randomNumber); // Thêm dữ liệu vào mảng randomData
-    });
-
-    // Nếu chưa có hàng dữ liệu, tạo 5 dòng với dữ liệu random
-    if (rows.length === 0) {
-        for (let i = 0; i < 5; i++) {
-            const newRow = document.createElement('tr');
-            const randomNumber = Math.floor(Math.random() * 50) + 1; // Random số từ 1 đến 50
-            const newDataCell = document.createElement('td');
-            newDataCell.textContent = `${newColumnName} - ${randomNumber}`;
-            newRow.appendChild(newDataCell);
-            tableBody.appendChild(newRow);
-            randomData.push(randomNumber); // Thêm dữ liệu vào mảng randomData
-        }
-    }
-
-    // Lưu cột mới vào localStorage với dữ liệu random
-    saveColumnToLocalStorage(newTableName, newColumnName, randomData);
-});
 
 
