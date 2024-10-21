@@ -1,0 +1,82 @@
+/* CSS cho modal */
+.modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000; /* Ensure it is above other content */
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+    width: 500px; /* Set a width for the modal */
+    max-height: 80%; /* Limit the height of the modal */
+    overflow-y: auto; /* Allow scrolling if content overflows */
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Stack children vertically */
+    justify-content: center; /* Center content vertically */
+    text-align: center; /* Center text */
+}
+
+.modal-buttons {
+    margin-top: 20px; /* Space above buttons */
+    display: flex; /* Use flexbox for button layout */
+    justify-content: center; /* Center buttons horizontally */
+}
+
+.modal-buttons button {
+    margin: 0 10px; /* Space between buttons */
+    padding: 10px 20px; /* Add padding for buttons */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    background-color: #007bff; /* Bootstrap primary color */
+    color: white; /* White text color */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Smooth transition for hover */
+}
+
+.modal-buttons button:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+}
+
+.modal-buttons button:focus {
+    outline: none; /* Remove focus outline */
+}
+/* Định dạng cho bảng */
+table {
+    width: 100%;
+    border-collapse: collapse; /* Loại bỏ khoảng cách giữa các đường viền */
+}
+
+th, td {
+    border: 1px solid black; /* Thêm viền cho mỗi ô */
+    padding: 10px; /* Khoảng cách bên trong ô */
+    text-align: center; /* Canh giữa nội dung */
+    vertical-align: middle; /* Canh giữa theo chiều dọc */
+}
+
+/* Điều chỉnh kích thước cho các cột */
+thead th {
+    background-color: #f4f4f4;
+}
+
+.sheet-container {
+    margin-bottom: 20px;
+}
+
+.sheet-content table {
+    width: 100%; /* Đảm bảo bảng chiếm toàn bộ chiều rộng container */
+}
+
+button {
+    padding: 5px 10px;
+    margin: 5px;
+}

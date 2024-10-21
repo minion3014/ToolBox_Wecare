@@ -75,7 +75,7 @@ function handleFile(e) {
                 const sheetContent = document.createElement('div');
                 sheetContent.classList.add('sheet-content');
                 sheetContent.style.display = 'none';
-
+                console.log("shete contain", sheetContent);
                 toggleButton.addEventListener('click', function () {
                     if (sheetContent.style.display === 'none') {
                         sheetContent.style.display = 'block';
@@ -203,25 +203,25 @@ function showAddDataPopup(fileID, sheetName, dataRow) {
 
     setTimeout(() => {
         if (!form) {
-            console.error('Form element not found in the popup');
+            console.error('Không tìm thấy form trong popup');
             return;
         }
 
-        // Clear any existing form content
+        // Xóa nội dung form cũ
         form.innerHTML = '';
 
-        const workbook = workbooks[fileID];  // Lấy đúng workbook từ file ID
-        const worksheet = workbook.Sheets[sheetName];  // Lấy đúng sheet từ workbook
+        const workbook = workbooks[fileID];  // Lấy đúng workbook theo file ID
+        const worksheet = workbook.Sheets[sheetName];  // Lấy đúng sheet theo tên
         let jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });  // Chuyển sheet thành JSON
-        const columnNames = jsonData[0];  // Tên các cột từ dòng đầu tiên
-        const localData = JSON.parse(localStorage.getItem(fileID));
-        const updatedColumnNames = localData[sheetName] ? localData[sheetName].columns : columnNames;
-        // Loại bỏ các cột có tên chứa (Do Not Modify)
+        const columnNames = jsonData[0];  // Lấy tên các cột từ dòng đầu tiên
+
+        // Loại bỏ các cột có tên chứa "(Do Not Modify)"
         const filteredColumnNames = columnNames.filter(col => !col.includes('(Do Not Modify)'));
 
         const formScroll = document.createElement('div');
         formScroll.classList.add('form-scroll');
 
+        // Tạo input cho từng cột hiện tại
         filteredColumnNames.forEach((columnName, index) => {
             const inputGroup = document.createElement('div');
             inputGroup.classList.add('input-group');
@@ -233,7 +233,7 @@ function showAddDataPopup(fileID, sheetName, dataRow) {
             const input = document.createElement('input');
             input.type = 'text';
             input.name = `column_${index + 1}`;
-            input.value = '';  // Giá trị mặc định là giá trị hiện tại trong dòng
+            input.value = '';  // Giá trị mặc định
             inputGroup.appendChild(input);
 
             formScroll.appendChild(inputGroup);
@@ -251,32 +251,26 @@ function showAddDataPopup(fileID, sheetName, dataRow) {
             });
 
             // Cập nhật dữ liệu sheet với dòng mới dưới dạng object
-            const workbook = workbooks[fileID];  // Lấy đúng workbook từ file ID
-            const worksheet = workbook.Sheets[sheetName];
-            let jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });  // Lấy dữ liệu hiện tại dưới dạng JSON
+            let jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-            const columnNames = jsonData[0];  // Tên các cột từ dòng đầu tiên
-
-            // Loại bỏ các cột có tên chứa (Do Not Modify)
-            const filteredColumnNames = columnNames.filter(col => !col.includes('(Do Not Modify)'));
             const newDataObject = {};
             filteredColumnNames.forEach((colName, index) => {
-                newDataObject[colName] = updatedRow[index] !== undefined ? updatedRow[index] : null;  // Gán dữ liệu tương ứng với cột
+                newDataObject[colName] = updatedRow[index] !== undefined ? updatedRow[index] : null;
             });
 
             console.log('Dữ liệu nhập vào (dưới dạng object):', newDataObject);
 
-            // Cập nhật dữ liệu sheet với dòng mới dưới dạng object
+            // Cập nhật dữ liệu JSON
             jsonData.push(newDataObject);
 
-            // Cần chuyển jsonData (mảng các object) thành array of arrays để sử dụng với aoa_to_sheet
-            const updatedDataArray = [filteredColumnNames];  // Header
-            jsonData.slice(1).forEach(rowObject => {  // Bỏ qua header khi chuyển đổi
-                const rowArray = filteredColumnNames.map(col => rowObject[col]);  // Tạo mảng từ object
-                updatedDataArray.push(rowArray);  // Thêm vào mảng các dòng
+            // Chuyển jsonData thành array of arrays
+            const updatedDataArray = [filteredColumnNames];
+            jsonData.slice(1).forEach(rowObject => {
+                const rowArray = filteredColumnNames.map(col => rowObject[col]);
+                updatedDataArray.push(rowArray);
             });
 
-            // Cập nhật lại sheet với dữ liệu mới dưới dạng array of arrays
+            // Cập nhật sheet
             const updatedSheet = XLSX.utils.aoa_to_sheet(updatedDataArray);
             workbook.Sheets[sheetName] = updatedSheet;
 
@@ -288,9 +282,9 @@ function showAddDataPopup(fileID, sheetName, dataRow) {
                 td.textContent = cellData !== undefined ? cellData : '';
                 newRow.appendChild(td);
             });
-            table.appendChild(newRow);  // Thêm dòng mới vào bảng HTML
+            table.appendChild(newRow);
 
-            // Lưu dữ liệu vào localStorage theo đúng cấu trúc
+            // Lưu dữ liệu vào localStorage
             saveDataToLocalStorage(fileID, sheetName, newDataObject);
 
             // Ẩn popup và lớp nền
@@ -298,7 +292,7 @@ function showAddDataPopup(fileID, sheetName, dataRow) {
             overlay.style.display = 'none';
         };
 
-        // Thêm cột mới vào form và bảng HTML
+        // Khi nhấn "Thêm Cột Mới"
         newColumn.addEventListener('click', function () {
             const newColumnName = prompt('Nhập tên cột mới:');
             if (!newColumnName) return;
@@ -320,20 +314,20 @@ function showAddDataPopup(fileID, sheetName, dataRow) {
             formScroll.appendChild(newInputGroup);
             filteredColumnNames.push(newColumnName);
 
-            // Cập nhật cột mới vào localStorage và bảng HTML
-            //updateLocalStorageWithNewColumn(fileID, sheetName, filteredColumnNames);
+            // Cập nhật bảng HTML với cột mới
             updateTableWithNewColumn(fileID, sheetName, newColumnName);
+
+            // Cập nhật localStorage với cột mới
+            updateLocalStorageWithNewColumn(fileID, sheetName, newColumnName);
         });
 
-
-        // Khi đóng popup
+        // Khi nhấn "Đóng"
         closePopupButton.onclick = function () {
             popup.style.display = 'none';
             overlay.style.display = 'none';
         };
     }, 0);
 }
-
 
 function saveDataToLocalStorage(fileID, sheetName, updatedRow) {
     // Lấy dữ liệu hiện có từ localStorage
@@ -380,9 +374,6 @@ function updateLocalStorageWithNewColumn(fileID, sheetName, filteredColumnNames)
     console.log(`Column names for sheet ${sheetName} in file ${fileID} have been updated.`);
 }
 
-
-
-
 // Hàm cập nhật bảng HTML khi có thêm cột mới
 function updateTableWithNewColumn(fileID, sheetName, newColumnName) {
     // Tìm bảng theo fileID và sheetName
@@ -395,47 +386,47 @@ function updateTableWithNewColumn(fileID, sheetName, newColumnName) {
         return;
     }
 
-    // Cập nhật tiêu đề cột mới (thead)
-    const thead = table.querySelector('thead tr');
+    // Lấy hàng tiêu đề hiện tại (tr đầu tiên)
+    const headerRow = table.querySelector('tr');
+
+    // Thêm ô tiêu đề mới cho cột mới
     const newHeaderCell = document.createElement('th');
     newHeaderCell.textContent = newColumnName;
-    thead.appendChild(newHeaderCell);  // Thêm tiêu đề cột mới vào thead
+    headerRow.appendChild(newHeaderCell); // Thêm ô mới vào hàng tiêu đề
+
+    // Kiểm tra phần tbody
+    let tbody = table.querySelector('tbody');
+    if (!tbody) {
+        // Nếu chưa có tbody, tạo nó và thêm vào bảng
+        tbody = document.createElement('tbody');
+        table.appendChild(tbody);
+    }
 
     // Cập nhật các dòng dữ liệu trong tbody để thêm ô cho cột mới
-    const tbody = table.querySelector('tbody');
     const rows = tbody.querySelectorAll('tr');
     rows.forEach(row => {
         const newCell = document.createElement('td');
-        newCell.textContent = '';  // Giá trị mặc định là trống
-        row.appendChild(newCell);  // Thêm cột mới vào mỗi dòng trong tbody
+        newCell.textContent = ''; // Giá trị mặc định là trống
+        row.appendChild(newCell); // Thêm cột mới vào mỗi dòng trong tbody
     });
 
-    // Cập nhật lại dữ liệu vào localStorage
+    // Cập nhật lại dữ liệu vào localStorage (nếu cần)
     let existingData = JSON.parse(localStorage.getItem(fileID)) || {};
     if (!existingData[sheetName]) {
         existingData[sheetName] = [];
     }
     existingData[sheetName].forEach(row => {
-        row[newColumnName] = '';  // Thêm cột mới vào mỗi đối tượng row với giá trị trống
+        row[newColumnName] = ''; // Thêm cột mới vào mỗi đối tượng row với giá trị trống
     });
-    //localStorage.setItem(fileID, JSON.stringify(existingData));  // Lưu lại vào localStorage
+
+    localStorage.setItem(fileID, JSON.stringify(existingData)); // Lưu lại vào localStorage
 }
-
-
-
 
 // Hàm xóa dữ liệu từ localStorage khi tải lại trang
 window.addEventListener('DOMContentLoaded', function () {
-    // Lặp qua các mục trong localStorage và xóa tất cả các mục có key bắt đầu bằng "file_"
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key.startsWith('file_')) {
-            localStorage.removeItem(key);
-            i--; // Giảm i vì localStorage đã thay đổi kích thước sau khi xóa phần tử
-        }
-    }
-
-    console.log('Tất cả dữ liệu liên quan đến các file đã bị xóa khỏi localStorage.');
+    // Xóa toàn bộ dữ liệu trong localStorage
+    localStorage.clear();
+    console.log('Toàn bộ dữ liệu đã bị xóa khỏi localStorage.');
 });
 
 

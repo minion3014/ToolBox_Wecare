@@ -1,4 +1,3 @@
-// Hàm để load sidebar
 function loadSidebar(activeLinkId) {
     fetch('../component/sidebar.html')
         .then(response => response.text())
@@ -6,8 +5,8 @@ function loadSidebar(activeLinkId) {
             // Chèn sidebar vào placeholder
             document.getElementById('sidebar-placeholder').outerHTML = data;
 
-            // Lấy trạng thái từ localStorage và khôi phục lại
-            restoreSidebarState();
+            // Khôi phục trạng thái submenu từ localStorage
+            restoreSubmenuStates();
 
             // Thêm lớp 'active' cho link hiện tại
             if (activeLinkId) {
@@ -22,4 +21,31 @@ function loadSidebar(activeLinkId) {
         });
 }
 
+function restoreSubmenuStates() {
+    // Khôi phục trạng thái submenu từ localStorage
+    const submenuStates = JSON.parse(localStorage.getItem('submenuStates')) || {};
+
+    // Thiết lập trạng thái cho các submenu
+    for (const [key, value] of Object.entries(submenuStates)) {
+        const toggle = document.getElementById(`toggle-${key}`);
+        const submenu = document.querySelector(`ul.submenu`);
+
+        if (toggle) {
+            toggle.checked = value; // Thiết lập checkbox dựa trên trạng thái đã lưu
+            if (value) {
+                submenu.classList.add('show'); // Thêm lớp show nếu submenu được mở
+            }
+        }
+    }
+
+    // Xử lý sự kiện cho các nút toggle
+    const toggles = document.querySelectorAll('.toggle');
+    toggles.forEach(toggle => {
+        toggle.addEventListener('change', function () {
+            const key = this.id.replace('toggle-', ''); // Lấy tên của menu từ ID
+            submenuStates[key] = this.checked; // Lưu trạng thái vào localStorage
+            localStorage.setItem('submenuStates', JSON.stringify(submenuStates)); // Cập nhật localStorage
+        });
+    });
+}
 

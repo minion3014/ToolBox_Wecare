@@ -6,6 +6,7 @@
     <title>Tool Excel - Toolbox</title>
     <link rel="stylesheet" href="../css/styles_tool_excel.css">
     <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/syles_addTable.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
@@ -19,6 +20,7 @@
     <div id="content">
         <h1>Upload Excel_v1</h1>
         <p>Tải lên tệp Excel và hiển thị dữ liệu từ các sheet dưới dạng bảng.</p>
+        <button id="add-table-button">Thêm bảng</button>
 
         <!-- Form để upload file -->
         <input type="file" id="input-excel" accept=".xlsx, .xls" multiple class="form-control mb-3" />
@@ -58,6 +60,21 @@
             </form>
         </div>
     </div>
+    <!-- Popup Nhập Tên Bảng -->
+    <div id="add-table-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Nhập Tên Bảng Mới</h2>
+            <br>
+            <form id="table-form">
+                <label for="new-table-name">Tên bảng:</label>
+                <input type="text" id="new-table-name" required>
+                <div class="modal-buttons">
+                    <button type="submit" id="save-table" class="save-data">Lưu</button>
+                    <button type="button" id="close-table-modal" class="close-modal">Đóng</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
 
     <!-- JavaScript -->
@@ -67,6 +84,7 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="../script/tool_excel.js"></script>
+    <script src="../script/addTable.js"></script>
 </body>
 
 </html>
