@@ -42,10 +42,14 @@ function handleFile(e) {
 
                 // Format lại dữ liệu JSON thành array of objects
                 const columns = jsonData[0];  // Lấy tên các cột
+                const filteredColumns = columns.filter(col => typeof col === 'string' && !col.startsWith('(Do Not Modify)'));  // Loại bỏ các cột có tên chứa (Do Not Modify)
+
                 const formattedRows = jsonData.slice(1).map(row => {
                     const rowObject = {};
                     row.forEach((cellData, index) => {
-                        rowObject[columns[index]] = cellData;
+                        if (filteredColumns[index]) {
+                            rowObject[filteredColumns[index]] = cellData;
+                        }
                     });
                     return rowObject;
                 });
@@ -112,10 +116,16 @@ function handleFile(e) {
 
                     // Header
                     const headerRow = document.createElement('tr');
-                    jsonData[0].forEach(function (cellData, index) {
+                    filteredColumns.forEach(function (cellData, index) {
                         const th = document.createElement('th');
                         th.textContent = cellData !== undefined ? cellData : '';
-                        th.style.width = '150px';
+
+                        // Cập nhật style cho ô tên cột
+                        th.style.whiteSpace = 'nowrap';  // Ngăn văn bản xuống dòng
+                        th.style.overflow = 'hidden';  // Ẩn phần thừa nếu vượt ra ngoài
+                        th.style.textOverflow = 'ellipsis';  // Hiển thị dấu ba chấm "..." khi văn bản quá dài
+                        th.style.maxWidth = '150px';  // Giới hạn chiều rộng cột
+
                         headerRow.appendChild(th);
                     });
                     table.appendChild(headerRow);
@@ -124,16 +134,38 @@ function handleFile(e) {
                     for (let i = 1; i < jsonData.length; i++) {
                         const rowData = jsonData[i];
                         const row = document.createElement('tr');
-                        rowData.forEach(function (cellData) {
+                        rowData.forEach(function (cellData, cellIndex) {
                             const td = document.createElement('td');
                             td.textContent = cellData !== undefined ? cellData : '';
+
+                            // Cập nhật style cho ô dữ liệu
+                            td.style.whiteSpace = 'nowrap';  // Ngăn văn bản xuống dòng
+                            td.style.overflow = 'hidden';  // Ẩn phần thừa nếu vượt ra ngoài
+                            td.style.textOverflow = 'ellipsis';  // Hiển thị dấu ba chấm "..." khi văn bản quá dài
+                            td.style.maxWidth = '150px';  // Giới hạn chiều rộng ô
+
                             row.appendChild(td);
                         });
                         tbody.appendChild(row);
+
+                        // Chỉ hiển thị tối đa 5 dòng
+                        if (i === 5) break;
                     }
 
                     table.appendChild(tbody);
                     sheetContent.appendChild(table);
+
+                    // Thêm thanh cuộn nếu có nhiều cột
+                    if (filteredColumns.length > 10) {
+                        sheetContent.style.overflowX = 'auto';
+                        sheetContent.style.whiteSpace = 'nowrap';
+                    }
+
+                    // Thêm thanh cuộn nếu có nhiều dòng
+                    if (jsonData.length > 6) {
+                        sheetContent.style.overflowY = 'auto';
+                        sheetContent.style.maxHeight = '200px';  // Giới hạn chiều cao của bảng
+                    }
                 }
 
                 sheetContainer.appendChild(sheetContent);
@@ -155,6 +187,151 @@ function handleFile(e) {
 
         reader.readAsBinaryString(file);
     });
+}
+
+function showAddDataPopup(fileID, sheetName, dataRow) {
+    const popup = document.getElementById('popup1');
+    const overlay = document.getElementById('overlay');
+    const form = document.getElementById('data-form');
+    const saveDataButton = document.getElementById('save-data');
+    const newColumn = document.getElementById('new-column');
+    const closePopupButton = document.getElementById('close-popup');
+
+    // Hiển thị popup và lớp nền mờ
+    popup.style.display = 'block';
+    overlay.style.display = 'block';
+
+    setTimeout(() => {
+        if (!form) {
+            console.error('Form element not found in the popup');
+            return;
+        }
+
+        // Clear any existing form content
+        form.innerHTML = '';
+
+        const workbook = workbooks[fileID];  // Lấy đúng workbook từ file ID
+        const worksheet = workbook.Sheets[sheetName];  // Lấy đúng sheet từ workbook
+        let jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });  // Chuyển sheet thành JSON
+        const columnNames = jsonData[0];  // Tên các cột từ dòng đầu tiên
+        const localData = JSON.parse(localStorage.getItem(fileID));
+        const updatedColumnNames = localData[sheetName] ? localData[sheetName].columns : columnNames;
+        // Loại bỏ các cột có tên chứa (Do Not Modify)
+        const filteredColumnNames = columnNames.filter(col => !col.includes('(Do Not Modify)'));
+
+        const formScroll = document.createElement('div');
+        formScroll.classList.add('form-scroll');
+
+        filteredColumnNames.forEach((columnName, index) => {
+            const inputGroup = document.createElement('div');
+            inputGroup.classList.add('input-group');
+
+            const label = document.createElement('label');
+            label.textContent = columnName;
+            inputGroup.appendChild(label);
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.name = `column_${index + 1}`;
+            input.value = '';  // Giá trị mặc định là giá trị hiện tại trong dòng
+            inputGroup.appendChild(input);
+
+            formScroll.appendChild(inputGroup);
+        });
+
+        form.appendChild(formScroll); // Thêm formScroll vào form
+
+        // Khi nhấn nút "Lưu Dữ Liệu"
+        saveDataButton.onclick = function () {
+            const formData = new FormData(form);
+            const updatedRow = [];
+
+            formData.forEach((value) => {
+                updatedRow.push(value);  // Thu thập dữ liệu từ form
+            });
+
+            // Cập nhật dữ liệu sheet với dòng mới dưới dạng object
+            const workbook = workbooks[fileID];  // Lấy đúng workbook từ file ID
+            const worksheet = workbook.Sheets[sheetName];
+            let jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });  // Lấy dữ liệu hiện tại dưới dạng JSON
+
+            const columnNames = jsonData[0];  // Tên các cột từ dòng đầu tiên
+
+            // Loại bỏ các cột có tên chứa (Do Not Modify)
+            const filteredColumnNames = columnNames.filter(col => !col.includes('(Do Not Modify)'));
+            const newDataObject = {};
+            filteredColumnNames.forEach((colName, index) => {
+                newDataObject[colName] = updatedRow[index] !== undefined ? updatedRow[index] : null;  // Gán dữ liệu tương ứng với cột
+            });
+
+            console.log('Dữ liệu nhập vào (dưới dạng object):', newDataObject);
+
+            // Cập nhật dữ liệu sheet với dòng mới dưới dạng object
+            jsonData.push(newDataObject);
+
+            // Cần chuyển jsonData (mảng các object) thành array of arrays để sử dụng với aoa_to_sheet
+            const updatedDataArray = [filteredColumnNames];  // Header
+            jsonData.slice(1).forEach(rowObject => {  // Bỏ qua header khi chuyển đổi
+                const rowArray = filteredColumnNames.map(col => rowObject[col]);  // Tạo mảng từ object
+                updatedDataArray.push(rowArray);  // Thêm vào mảng các dòng
+            });
+
+            // Cập nhật lại sheet với dữ liệu mới dưới dạng array of arrays
+            const updatedSheet = XLSX.utils.aoa_to_sheet(updatedDataArray);
+            workbook.Sheets[sheetName] = updatedSheet;
+
+            // Cập nhật bảng HTML (thêm dòng mới)
+            const table = document.querySelector(`.sheet-container[data-file-id="${fileID}"] .excel-table tbody`);
+            const newRow = document.createElement('tr');
+            updatedRow.forEach(function (cellData) {
+                const td = document.createElement('td');
+                td.textContent = cellData !== undefined ? cellData : '';
+                newRow.appendChild(td);
+            });
+            table.appendChild(newRow);  // Thêm dòng mới vào bảng HTML
+
+            // Lưu dữ liệu vào localStorage theo đúng cấu trúc
+            saveDataToLocalStorage(fileID, sheetName, newDataObject);
+
+            // Ẩn popup và lớp nền
+            popup.style.display = 'none';
+            overlay.style.display = 'none';
+        };
+
+        // Thêm cột mới vào form và bảng HTML
+        newColumn.addEventListener('click', function () {
+            const newColumnName = prompt('Nhập tên cột mới:');
+            if (!newColumnName) return;
+
+            // Cập nhật form
+            const newInputGroup = document.createElement('div');
+            newInputGroup.classList.add('input-group');
+
+            const newLabel = document.createElement('label');
+            newLabel.textContent = newColumnName;
+            newInputGroup.appendChild(newLabel);
+
+            const newInput = document.createElement('input');
+            newInput.type = 'text';
+            newInput.name = `column_${filteredColumnNames.length + 1}`;
+            newInput.value = '';
+            newInputGroup.appendChild(newInput);
+
+            formScroll.appendChild(newInputGroup);
+            filteredColumnNames.push(newColumnName);
+
+            // Cập nhật cột mới vào localStorage và bảng HTML
+            //updateLocalStorageWithNewColumn(fileID, sheetName, filteredColumnNames);
+            updateTableWithNewColumn(fileID, sheetName, newColumnName);
+        });
+
+
+        // Khi đóng popup
+        closePopupButton.onclick = function () {
+            popup.style.display = 'none';
+            overlay.style.display = 'none';
+        };
+    }, 0);
 }
 
 
@@ -182,114 +359,70 @@ function saveDataToLocalStorage(fileID, sheetName, updatedRow) {
     console.log(`Data for sheet ${sheetName} in file ${fileID} has been updatedqeq.`);
 }
 
+// Hàm cập nhật cột mới vào localStorage
+function updateLocalStorageWithNewColumn(fileID, sheetName, filteredColumnNames) {
+    const localData = JSON.parse(localStorage.getItem(fileID));
 
-// Hàm hiển thị popup để thêm dữ liệu (cập nhật để gọi saveDataToLocalStorage)áA
-function showAddDataPopup(fileID, sheetName, dataRow) {
-    const popup = document.getElementById('popup1');
-    const overlay = document.getElementById('overlay');
-    const form = document.getElementById('data-form');
-    const saveDataButton = document.getElementById('save-data');
-    const closePopupButton = document.getElementById('close-popup');
+    if (!localData) {
+        console.error(`Workbook with fileID ${fileID} does not exist in localStorage.`);
+        return;
+    }
 
-    // Hiển thị popup và lớp nền mờ
-    popup.style.display = 'block';
-    overlay.style.display = 'block';
+    if (!localData[sheetName]) {
+        console.error(`Sheet with name ${sheetName} does not exist in file ${fileID}.`);
+        return;
+    }
 
-    setTimeout(() => {
-        if (!form) {
-            console.error('Form element not found in the popup');
-            return;
-        }
+    // Cập nhật danh sách các cột vào localStorage
+    localData[sheetName].columns = filteredColumnNames;
+    localStorage.setItem(fileID, JSON.stringify(localData));
 
-        form.innerHTML = '';  // Xóa nội dung cũ
-        const workbook = workbooks[fileID];  // Lấy đúng workbook từ file ID
-        const worksheet = workbook.Sheets[sheetName];  // Lấy đúng sheet từ workbook
-        let jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        const columnNames = jsonData[0];  // Tên các cột từ dòng đầu tiên
-
-        // Tạo các ô nhập liệu từ dữ liệu trong sheet
-        columnNames.forEach((columnName, index) => {
-            const inputGroup = document.createElement('div');
-            inputGroup.classList.add('input-group');
-
-            const label = document.createElement('label');
-            label.textContent = columnName; // Hiển thị tên cột từ file Excel
-            inputGroup.appendChild(label);
-
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.name = `column_${index + 1}`;
-            input.value = '';  // Giá trị mặc định là giá trị hiện tại trong dòng
-            inputGroup.appendChild(input);
-
-            form.appendChild(inputGroup);
-        });
-
-        // Khi nhấn nút "Lưu Dữ Liệu"
-        saveDataButton.onclick = function () {
-            const formData = new FormData(form);
-            const updatedRow = [];
-
-            formData.forEach((value) => {
-                updatedRow.push(value);  // Thu thập dữ liệu từ form
-            });
-
-            // Tạo object theo cấu trúc ban đầu (dựa trên tên cột của sheet)
-            const workbook = workbooks[fileID];  // Lấy đúng workbook từ file ID
-            const worksheet = workbook.Sheets[sheetName];
-            let jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });  // Lấy dữ liệu hiện tại dưới dạng JSON
-
-            const columnNames = jsonData[0];  // Tên các cột từ dòng đầu tiên
-
-            // Chuyển array thành object với các key là tên cột
-            const newDataObject = {};
-            columnNames.forEach((colName, index) => {
-                newDataObject[colName] = updatedRow[index] !== undefined ? updatedRow[index] : null;  // Gán dữ liệu tương ứng với cột
-            });
-
-            console.log('Dữ liệu nhập vào (dưới dạng object):', newDataObject);
-
-            // Cập nhật dữ liệu sheet với dòng mới dưới dạng object
-            jsonData.push(newDataObject);
-
-            // Cần chuyển jsonData (mảng các object) thành array of arrays để sử dụng với aoa_to_sheet
-            const updatedDataArray = [columnNames];  // Header
-            jsonData.slice(1).forEach(rowObject => {  // Bỏ qua header khi chuyển đổi
-                const rowArray = columnNames.map(col => rowObject[col]);  // Tạo mảng từ object
-                updatedDataArray.push(rowArray);  // Thêm vào mảng các dòng
-            });
-
-            // Cập nhật lại sheet với dữ liệu mới dưới dạng array of arrays
-            const updatedSheet = XLSX.utils.aoa_to_sheet(updatedDataArray);
-            workbook.Sheets[sheetName] = updatedSheet;
-
-            // Cập nhật bảng HTML (thêm dòng mới)
-            const table = document.querySelector(`.sheet-container[data-file-id="${fileID}"] .excel-table tbody`);
-            const newRow = document.createElement('tr');
-            updatedRow.forEach(function (cellData) {
-                const td = document.createElement('td');
-                td.textContent = cellData !== undefined ? cellData : '';
-                newRow.appendChild(td);
-            });
-            table.appendChild(newRow);  // Thêm dòng mới vào bảng HTML
-
-            // Lưu dữ liệu vào localStorage theo đúng cấu trúc
-            saveDataToLocalStorage(fileID, sheetName, newDataObject);
-
-            // Ẩn popup và lớp nền
-            popup.style.display = 'none';
-            overlay.style.display = 'none';
-        };
-
-
-
-        // Khi đóng popup
-        closePopupButton.onclick = function () {
-            popup.style.display = 'none';
-            overlay.style.display = 'none';
-        };
-    }, 0);
+    console.log(`Column names for sheet ${sheetName} in file ${fileID} have been updated.`);
 }
+
+
+
+
+// Hàm cập nhật bảng HTML khi có thêm cột mới
+function updateTableWithNewColumn(fileID, sheetName, newColumnName) {
+    // Tìm bảng theo fileID và sheetName
+    const sheetContainer = document.querySelector(`.sheet-container[data-file-id="${fileID}"]`);
+    const sheetContent = sheetContainer.querySelector('.sheet-content');
+    const table = sheetContent.querySelector('.excel-table');
+
+    if (!table) {
+        console.error('Không tìm thấy bảng để cập nhật cột mới.');
+        return;
+    }
+
+    // Cập nhật tiêu đề cột mới (thead)
+    const thead = table.querySelector('thead tr');
+    const newHeaderCell = document.createElement('th');
+    newHeaderCell.textContent = newColumnName;
+    thead.appendChild(newHeaderCell);  // Thêm tiêu đề cột mới vào thead
+
+    // Cập nhật các dòng dữ liệu trong tbody để thêm ô cho cột mới
+    const tbody = table.querySelector('tbody');
+    const rows = tbody.querySelectorAll('tr');
+    rows.forEach(row => {
+        const newCell = document.createElement('td');
+        newCell.textContent = '';  // Giá trị mặc định là trống
+        row.appendChild(newCell);  // Thêm cột mới vào mỗi dòng trong tbody
+    });
+
+    // Cập nhật lại dữ liệu vào localStorage
+    let existingData = JSON.parse(localStorage.getItem(fileID)) || {};
+    if (!existingData[sheetName]) {
+        existingData[sheetName] = [];
+    }
+    existingData[sheetName].forEach(row => {
+        row[newColumnName] = '';  // Thêm cột mới vào mỗi đối tượng row với giá trị trống
+    });
+    //localStorage.setItem(fileID, JSON.stringify(existingData));  // Lưu lại vào localStorage
+}
+
+
+
 
 // Hàm xóa dữ liệu từ localStorage khi tải lại trang
 window.addEventListener('DOMContentLoaded', function () {
@@ -316,5 +449,5 @@ function calculateColumnWidths(jsonData) {
             }
         });
     });
-    return colWidths.map(width => width * 10);  // Đoạn mã này nhân với 10 để có độ rộng phù hợp
+    return colWidths.map(width => width * 100);  // Đoạn mã này nhân với 10 để có độ rộng phù hợp
 }
