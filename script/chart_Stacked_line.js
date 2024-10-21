@@ -46,7 +46,7 @@ document.getElementById('btn-add-stacked-line-chart').addEventListener('click', 
     // Thêm các file bắt đầu bằng 'file_'
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key.startsWith('file_')) {
+        if (key !== "savedCharts") {
             const option = document.createElement('option');
             option.value = key;
             option.text = key;
