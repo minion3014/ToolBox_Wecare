@@ -137,15 +137,30 @@
         .custom-button:hover {
             background-color: #146b90;
         }
-        .dropdown-content {
-    position: relative;
-    display: block;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-    border-radius: 4px;
-}
 
+        .dropdown-content {
+            position: relative;
+            display: block;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border-radius: 4px;
+        }
+
+        .clear-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: #484848;
+        }
+
+        .clear-button:hover {
+            color: #007bff;
+        }
     </style>
 </head>
 
@@ -157,7 +172,11 @@
 
         <div id="visualization-display-area">
             <!-- Các chart sẽ được tạo và hiển thị ở đây -->
+
         </div>
+        <button id="btn-clear-custom-chart" class="clear-button" title="Clear">
+            <i class="fas fa-refresh"></i>
+        </button>
 
         <!-- Right panel -->
         <div id="right-panel">
@@ -191,7 +210,8 @@
             <!-- Button -->
             <div style="display: flex; gap: 10px;">
                 <button id="btn-save-custom-chart" class="custom-button">Save</button>
-                <button id="btn-clear-custom-chart" class="custom-button">Clear</button>
+                <!-- <button id="btn-clear-custom-chart" class="custom-button">Clear</button> -->
+                <button id="btn-export" class="custom-button">Export</button>
                 <button id="btn-import-custom-chart" class="custom-button">Import</button>
                 <input type="file" id="import-file" style="display:none" accept=".json">
             </div>

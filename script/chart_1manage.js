@@ -201,7 +201,7 @@ function makeDraggable(element) {
             element.style.cursor = 'grab';
 
             // Lưu vị trí vào localStorage
-            const uniqueId = element.getAttribute('data-chart-id');
+            const uniqueId = element.getAttribute('data-chart-id') || element.getAttribute('data-slicer-id');
             updateChartPositionInLocalStorage(uniqueId, element.style.left, element.style.top);
         }
     });
@@ -291,7 +291,46 @@ function renderChart(type, data, options) {
     saveChartToLocalStorage(canvas.parentElement, type, data, options);
 }
 
-// Hàm để lưu các biểu đồ
+// Hàm export biểu đồ ra file html
+document.getElementById('btn-export').addEventListener('click', function () {
+    // Lấy toàn bộ nội dung của phần tử #visualization-display-area
+    let displayAreaContent = document.getElementById('visualization-display-area').innerHTML;
+    // Tạo khung cơ bản của file HTML
+    let fullHTML = `
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Exported Visualization</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; }
+                        </style>
+                    </head>
+                    <body>
+                        <div id="visualization-display-area">
+                            ${displayAreaContent}
+                        </div>
+                    </body>
+                    </html>
+                    `;
+
+    // Tạo một blob với nội dung HTML
+    let blob = new Blob([fullHTML], { type: 'text/html' });
+
+    // Tạo một liên kết để tải xuống tệp
+    let link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'exported_visualization.html';
+
+    // Kích hoạt tải xuống
+    link.click();
+
+    // Giải phóng URL đối tượng blob
+    URL.revokeObjectURL(link.href);
+});
+
+// Hàm để lưu các biểu đồ khi nhấn save
 document.getElementById('btn-save-custom-chart').addEventListener('click', function () {
     const charts = document.querySelectorAll('.chart-container');
     const chartsData = [];
@@ -480,6 +519,9 @@ function loadSavedCharts() {
                 slicerContainer.style.top = chartInfo.position.top;
                 slicerContainer.style.width = chartInfo.size.width;
                 slicerContainer.style.height = chartInfo.size.height;
+
+                makeDraggable(slicerContainer);
+                makeResizable(slicerContainer);
             } else {
                 const canvas = createChartContainer(chartInfo.id); // Truyền ID đã lưu khi tạo
                 const ctx = canvas.getContext('2d');
