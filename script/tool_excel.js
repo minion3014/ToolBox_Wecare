@@ -227,7 +227,7 @@ function showAddDataPopup(fileID, sheetName, dataRow) {
             inputGroup.classList.add('input-group');
 
             const label = document.createElement('label');
-            label.textContent = columnName;
+            label.textContent = columnName;  // Hiển thị tên cột từ file Excel
             inputGroup.appendChild(label);
 
             const input = document.createElement('input');
@@ -239,7 +239,7 @@ function showAddDataPopup(fileID, sheetName, dataRow) {
             formScroll.appendChild(inputGroup);
         });
 
-        form.appendChild(formScroll); // Thêm formScroll vào form
+        form.appendChild(formScroll);  // Thêm formScroll vào form
 
         // Khi nhấn nút "Lưu Dữ Liệu"
         saveDataButton.onclick = function () {
@@ -294,34 +294,48 @@ function showAddDataPopup(fileID, sheetName, dataRow) {
 
         // Khi nhấn "Thêm Cột Mới"
         newColumn.addEventListener('click', function () {
-            const newColumnName = prompt('Nhập tên cột mới:');
-            if (!newColumnName) return;
+            // Tạo form nhập liệu mới cho cột mới
+            const newColumnName = prompt('Nhập tên cột mới:');  // Popup yêu cầu nhập tên cột mới
+            if (!newColumnName) return;  // Nếu không nhập gì thì dừng
 
-            // Cập nhật form
+            // Thêm cột vào form
             const newInputGroup = document.createElement('div');
             newInputGroup.classList.add('input-group');
 
             const newLabel = document.createElement('label');
-            newLabel.textContent = newColumnName;
+            newLabel.textContent = newColumnName;  // Hiển thị tên cột mới
             newInputGroup.appendChild(newLabel);
 
             const newInput = document.createElement('input');
             newInput.type = 'text';
-            newInput.name = `column_${filteredColumnNames.length + 1}`;
-            newInput.value = '';
+            newInput.name = `column_${filteredColumnNames.length + 1}`;  // Tạo tên mới cho input
+            newInput.value = '';  // Giá trị mặc định là trống
             newInputGroup.appendChild(newInput);
 
-            formScroll.appendChild(newInputGroup);
-            filteredColumnNames.push(newColumnName);
+            formScroll.appendChild(newInputGroup);  // Thêm cột mới vào form
+            filteredColumnNames.push(newColumnName);  // Thêm tên cột vào danh sách tên cột
 
-            // Cập nhật bảng HTML với cột mới
-            updateTableWithNewColumn(fileID, sheetName, newColumnName);
+            // Cập nhật lại dữ liệu sheet trong localStorage với cột mới
+            updateLocalStorageWithNewColumn(fileID, sheetName, filteredColumnNames);
 
-            // Cập nhật localStorage với cột mới
-            updateLocalStorageWithNewColumn(fileID, sheetName, newColumnName);
+            // **CẬP NHẬT BẢNG DỮ LIỆU (THÊM TÊN CỘT VÀ CỘT TRỐNG VÀO HTML)**
+            const table = document.querySelector(`.sheet-container[data-file-id="${fileID}"] .excel-table`);
+
+            // Thêm tiêu đề cột mới vào <thead>
+            const tableHeaderRow = table.querySelector('thead tr');
+            const newTableHeaderCell = document.createElement('th');
+            newTableHeaderCell.textContent = newColumnName;  // Thêm tên cột mới vào header
+            tableHeaderRow.appendChild(newTableHeaderCell);
+
+            // Thêm cột trống vào tất cả các hàng hiện tại trong <tbody>
+            const tableRows = table.querySelectorAll('tbody tr');
+            tableRows.forEach(row => {
+                const newCell = document.createElement('td');
+                row.appendChild(newCell);  // Thêm ô trống vào từng dòng
+            });
         });
 
-        // Khi nhấn "Đóng"
+        // Khi đóng popup
         closePopupButton.onclick = function () {
             popup.style.display = 'none';
             overlay.style.display = 'none';
